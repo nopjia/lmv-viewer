@@ -1,11 +1,11 @@
 {
   "name": "lmv-viewer",
-  "version": "0.0.1",
-  "description": "LMV Viewer Custom Element",
-  "license": "MIT",
+  "version": "0.1.0",
+  "description": "Custom Element for Autodesk LMV",
+  "license": "BSD 3-Clause",
   "main": "lmv-viewer.html",
   "keywords": [
-    "web-components"
+    "web-components", "lmv", "autodesk"
   ],
   "ignore": [
     "**/.*",

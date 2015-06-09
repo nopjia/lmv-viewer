@@ -1,0 +1,17 @@
+{
+  "name": "lmv-viewer",
+  "version": "0.0.1",
+  "description": "LMV Viewer Custom Element",
+  "license": "MIT",
+  "main": "lmv-viewer.html",
+  "keywords": [
+    "web-components"
+  ],
+  "ignore": [
+    "**/.*",
+    "bower_components"
+  ],
+  "dependencies": {
+    "webcomponentsjs": "^0.7.0"
+  }
+}

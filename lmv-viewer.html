@@ -8,8 +8,7 @@
   </style>
 </template>
 
-<script type="text/javascript" src="http://autodeskviewer.com/viewers-dev/latest/three.min.js"></script>
-<script type="text/javascript" src="http://autodeskviewer.com/viewers-dev/latest/viewer3D.min.js"></script>
+<script type="text/javascript" src="http://autodeskviewer.com/viewers-dev/latest/viewer3D.js"></script>
 <script type="text/javascript">
   // TODO_NOP: hacky hardcode
   window.LMV_RESOURCE_ROOT = "http://autodeskviewer.com/viewers-dev/latest/";
@@ -18,56 +17,25 @@
 <script>
 (function() {
 
-  function initializeViewer(parentDom, callback) {
-    var avp = Autodesk.Viewing.Private;
+  //---------------------------------------------------------
+  // SCOPE VARS
+  //---------------------------------------------------------
 
-    // config3d
+  var avp = Autodesk.Viewing.Private;
 
-    var config3d = {};
-    var canvasConfig = avp.getParameterByName("canvasConfig");
-    if (canvasConfig) {
-      config3d.canvasConfig = JSON.parse(canvasConfig);
-    }
-    var docStructureConfig = avp.getParameterByName("docConfig");
-    if (docStructureConfig) {
-      config3d.docStructureConfig = JSON.parse(docStructureConfig);
-    }
+  function isUrn(url) {
+    return url.indexOf("urn:") === 0;
+  }
 
-    // NOTE_NOP: avoid loading extensions upfront
-    // ui elements should be responsible for lazy-loading their own extensions
-    var extensions = config3d.extensions || [];
-    // extensions.push("Autodesk.Viewing.Collaboration");
-    // extensions.push("Autodesk.Viewing.RemoteControl");
-    // extensions.push("Autodesk.Viewing.FusionOrbit");
-    // extensions.push("Autodesk.Section");
-    // extensions.push("Autodesk.Measure");
-    config3d.extensions = extensions;
-
-    // TODO_NOP: needed?
-    config3d.screenModeDelegate = Autodesk.Viewing.ApplicationScreenModeDelegate;
-
-    // VIEWER INIT
-
-    var options = {};
-    // options.svf = svf;
-    // options.documentId = documentId;
-    options.env = "Local";
-    // options.env = "AutodeskProduction";   // TODO_NOP: how?
-    // options.accessToken = "L81paKMelsBe6qvrXtQZ0QchK0FP";
-
-    var viewer = new Autodesk.Viewing.Viewer3D(parentDom, config3d);
-
-    Autodesk.Viewing.Initializer(options, function() {
-      viewer.start();
-      callback(viewer);
-    });
-
-    return viewer;
+  function endsWith(s, suffix) {
+    return s.indexOf(suffix, s.length - suffix.length) !== -1;
   }
 
 
 
-
+  //---------------------------------------------------------
+  // HTML ELEMENT
+  //---------------------------------------------------------
 
   // Creates an object based in the HTML Element prototype
 
@@ -98,83 +66,119 @@
 
   // Fires when an attribute was added, removed, or updated
   element.attributeChangedCallback = function(attr, oldVal, newVal) {
-    console.log(attr + " changed from '" + oldVal + "' to '" + newVal + "'");
-
+    console.log("lmv-viewer '" + attr + "' changed from '" + oldVal + "' to '" + newVal + "'");
     if (this[attr+"Changed"]) this[attr+"Changed"](oldVal, newVal);
   };
+
+
+
+  //---------------------------------------------------------
+  // INIT
+  //---------------------------------------------------------
 
   element.init = function() {
     var self = this;
 
-    this.initialized = false;
+    this.ready = false;                   // ready to load url
     this.url = this.getAttribute("url");  // url to load
     this.svfUrl = undefined;              // url of svf loaded in viewer, to check if already loaded
 
-    this.viewer = initializeViewer(this.shadowRoot, function() {
-      self.initialized = true;
-      if (self.url)
-        self.loadUrl(self.url);
-      else
-        console.log("No URL given");
-    });
+    this.env = this.getAttribute("env");
+    if (!this.env && !isUrn(this.url)) {
+      this.env = "Local";
+      this.setAttribute("env", "Local");
+    }
+
+    var token = this.getAttribute("token");
+
+    this.viewer = new Autodesk.Viewing.Viewer3D(this.shadowRoot, {});
+    Autodesk.Viewing.Initializer({
+        accessToken: token,
+        env: self.env
+      },
+      function() {
+        self.viewer.initialize();
+        self.ready = true;
+        if (self.url)
+          self.setUrl(self.url);
+        else
+          console.log("No URL given");
+      }
+    );
 
     // hardcode settings
     this.viewer.prefs.set("clickToSetCOI", false);
   };
 
+
+
+  //---------------------------------------------------------
+  // CHANGED / SETTERS
+  //---------------------------------------------------------
+
   element.urlChanged = function(oldVal, newVal) {
     this.url = newVal;
-    this.loadUrl(this.url);
+    this.setUrl(this.url);
+  };
+
+  element.envChanged = function(oldVal, newVal) {
+    if (this.env === newVal)
+      return;
+    if (!newVal && !isUrn(this.url)) // detect for Local, otherwise let avp handle
+      newVal = "Local";
+    avp.initializeEnvironmentVariable({env: newVal});
+    avp.initializeServiceEndPoints({env: newVal});
+    avp.initializeLogger();
+  };
+
+  element.tokenChanged = function(oldVal, newVal) {
+    this.ready = false;
+    var self = this;
+    avp.initializeAuth(function() {
+      self.ready = true;
+      if (self.url) // automatically load url once token set
+          self.setUrl(self.url);
+    }, {accessToken: newVal});
   };
 
   /**
    * Load URL, handles both svf and bubble.json document
-   * Performs http request to check Content-Type
    */
-  element.loadUrl = function(url) {
+  element.setUrl = function(url) {
     if (!url) {
       console.log("ERROR: URL is empty");
       return;
     }
 
-    if (!this.initialized) {
-      console.log("Viewer not yet initialized. URL will load once it is.");
+    this.url = url;
+
+    if (!this.ready) {
+      console.log("Viewer not ready. URL will load once it is.");
       return;
     }
 
-    if (url.indexOf("urn:") === 0) {
+    if (endsWith(url, ".svf")) {
+      console.log("Load URL: SVF model");
+      this.loadModel(url);
+    }
+    else if (isUrn(url)) {
+      console.log("Load URL: JSON document");
       this.loadDocument(url);
-      return;
     }
-
-    var self = this;
-    var req = new XMLHttpRequest();
-    req.onerror = function() {
-      console.log("ERROR: request error on " + url);
-      return;
-    };
-    req.onload = function() {
-      if (this.status !== 200)
-        return this.onerror();
-
-      var contentType = this.getResponseHeader("Content-Type");
-      if (contentType === "application/json") {
-        console.log("Load URL: JSON document");
-        self.loadDocument(url);
-      }
-      else {
-        console.log("Load URL: non-document format");
-        self.loadModel(url);
-      }
-      self.url = url;
-    };
-    req.open("HEAD", url, true);
-    req.send();
+    else {
+      console.log("Load URL: unrecognized, attempt to load document");
+      this.loadDocument(url);
+    }
   };
 
-  /**
-   * Load SVF file. Wrapper around Viewer3D.loadModel() with additional checking and states
-   */
+
+
+  //---------------------------------------------------------
+  // MODEL LOADING
+  //---------------------------------------------------------
+
+  // load model
+  // wrapper around Viewer3D.loadModel() with additional checking and states
   element.loadModel = function(url, sharedDbPath) {
     if (url === this.svfUrl) {
       console.log("Already loaded: " + url);

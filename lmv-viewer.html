@@ -67,7 +67,14 @@
   // Fires when an attribute was added, removed, or updated
   element.attributeChangedCallback = function(attr, oldVal, newVal) {
     console.log("lmv-viewer '" + attr + "' changed from '" + oldVal + "' to '" + newVal + "'");
-    if (this[attr+"Changed"]) this[attr+"Changed"](oldVal, newVal);
+
+    // sync instance vars
+    if (this[attr])
+      this[attr] = newVal;
+
+    // call changed handlers
+    if (this[attr+"Changed"])
+      this[attr+"Changed"](oldVal, newVal);
   };
 
 
@@ -81,13 +88,12 @@
 
     this.ready = false;                   // ready to load url
     this.url = this.getAttribute("url");  // url to load
-    this.svfUrl = undefined;              // url of svf loaded in viewer, to check if already loaded
 
     this.env = this.getAttribute("env");
-    if (!this.env && !isUrn(this.url)) {
+    if (!this.env && !isUrn(this.url)) {  // detect for Local, otherwise let avp handle
       this.env = "Local";
-      this.setAttribute("env", "Local");
-    }
+      this.setAttribute("env", "Local");  // reflect in attr
+    }                                     // TODO_NOP: but results in ugly case in envChanged()
 
     var token = this.getAttribute("token");
 
@@ -100,7 +106,7 @@
         self.viewer.initialize();
         self.ready = true;
         if (self.url)
-          self.setUrl(self.url);
+          self.loadUrl(self.url);
         else
           console.log("No URL given");
       }
@@ -113,19 +119,16 @@
 
 
   //---------------------------------------------------------
-  // CHANGED / SETTERS
+  // CHANGED HANDLERS
   //---------------------------------------------------------
 
   element.urlChanged = function(oldVal, newVal) {
-    this.url = newVal;
-    this.setUrl(this.url);
+    this.loadUrl(this.url);
   };
 
   element.envChanged = function(oldVal, newVal) {
-    if (this.env === newVal)
+    if (oldVal===null && newVal==="Local")  // TODO_NOP: ugly hardcode case only for initialization
       return;
-    if (!newVal && !isUrn(this.url)) // detect for Local, otherwise let avp handle
-      newVal = "Local";
     avp.initializeEnvironmentVariable({env: newVal});
     avp.initializeServiceEndPoints({env: newVal});
     avp.initializeLogger();
@@ -137,20 +140,22 @@
     avp.initializeAuth(function() {
       self.ready = true;
       if (self.url) // automatically load url once token set
-          self.setUrl(self.url);
+          self.loadUrl(self.url);
     }, {accessToken: newVal});
   };
 
-  /**
-   * Load URL, handles both svf and bubble.json document
-   */
-  element.setUrl = function(url) {
+
+
+  //---------------------------------------------------------
+  // MODEL LOADING
+  //---------------------------------------------------------
+
+  // load URL, handles both svf and bubble.json document
+  element.loadUrl = function(url) {
     if (!url) {
       console.log("ERROR: URL is empty");
       return;
     }
-
-    this.url = url;
 
     if (!this.ready) {
       console.log("Viewer not ready. URL will load once it is.");
@@ -171,30 +176,16 @@
     }
   };
 
-
-
-  //---------------------------------------------------------
-  // MODEL LOADING
-  //---------------------------------------------------------
-
-  // load model
-  // wrapper around Viewer3D.loadModel() with additional checking and states
-  element.loadModel = function(url, sharedDbPath) {
-    if (url === this.svfUrl) {
-      console.log("Already loaded: " + url);
-      return;
-    }
-    var self = this;
-    this.viewer.loadModel(url, undefined, sharedDbPath,
+  // load model, basically just calling Viewer3D.loadModel() with some callbacks
+  element.loadModel = function(url) {
+    this.viewer.loadModel(url, undefined, undefined,
       function() {
-        this.svfUrl = url;
+        console.log("Success: loaded model " + url);
       },
       function() {
         console.log("ERROR: cannot load model " + url);
       }
     );
-
-    console.log("Load model: " + url);
   };
 
   // load document

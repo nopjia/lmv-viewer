@@ -45,10 +45,6 @@ Try it yourself by pasting this into a blank HTML file
 
   <!-- include the lmv-viewer element -->
   <link rel="import" href="https://rawgit.com/nopjia/lmv-viewer/master/lmv-viewer.html">
-
-  <style type="text/css">
-    lmv-viewer { width: 600px; height: 400px; }  /* give it some size */
-  </style>
 </head>
 <body>
 

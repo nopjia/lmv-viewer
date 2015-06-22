@@ -2,7 +2,19 @@
 
 A Custom Element for Autodesk's LMV, also officially known as [the View and Data API](http://developer-autodesk.github.io/)
 
-See live demo at http://nopjia.github.io/lmv-viewer/
+See demo at http://nopjia.github.io/lmv-viewer/
+
+See more samples and information for LMV at http://lmv.rocks/
+
+## Install
+
+Install the component using [Bower](http://bower.io/):
+
+```sh
+$ bower install lmv-viewer
+```
+
+Or [download as ZIP](https://github.com/nopjia/lmv-viewer/archive/master.zip).
 
 ## Usage
 
@@ -15,7 +27,6 @@ Or load URN with your access token from Autodesk server
 ```html
 <lmv-viewer url="urn:dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6bm9wL0FyYm9yUHJlc3MuZHdm" token="7twj3okWPRkbBMtpfUSN5hZkcAkv"></lmv-viewer>
 ```
-
 
 ## Attributes
 

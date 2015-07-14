@@ -175,6 +175,7 @@
 
   // load model, basically just calling Viewer3D.loadModel() with some callbacks
   element.loadModel = function(url) {
+    this.viewer.impl.unloadCurrentModel();
     this.viewer.loadModel(url, undefined, undefined,
       function() {
         console.log("Success: loaded model " + url);

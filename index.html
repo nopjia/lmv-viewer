@@ -13,10 +13,25 @@
 </head>
 <body>
 
-  <lmv-viewer url="https://lmv.rocks/data/engineraw/0.svf"></lmv-viewer>
-  <!-- <lmv-viewer url="http://lmv.rocks/data/rally/1/RallyFighter2.svf"></lmv-viewer> -->
-  <!-- <lmv-viewer url="http://lmv.rocks/data/gears/output/bubble.json"></lmv-viewer> -->
-  <!-- <lmv-viewer url="urn:dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6bm9wL0FyYm9yUHJlc3MuZHdm" token="7twj3okWPRkbBMtpfUSN5hZkcAkv"></lmv-viewer> -->
+  <lmv-viewer url="http://lmv.rocks/data/engineraw/0.svf"></lmv-viewer>
+
+  <p><a href="#" data-url="http://lmv.rocks/data/engineraw/0.svf">Engine</a></p>
+  <p><a href="#" data-url="http://lmv.rocks/data/rally/1/RallyFighter2.svf">Rally Fighter</a></p>
+  <p><a href="#" data-url="http://lmv.rocks/data/gears/output/bubble.json">Diff Gears</a></p>
+
+<script>
+(function() {
+
+  var viewerElem = document.querySelector("lmv-viewer");
+
+  Array.prototype.forEach.call(document.querySelectorAll("a"), function(elem) {
+    elem.addEventListener("click", function() {
+      viewerElem.setAttribute("url", this.dataset.url);
+    });
+  });
+
+})();
+</script>
 
 </body>
 </html>

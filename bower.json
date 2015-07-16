@@ -1,6 +1,6 @@
 {
   "name": "lmv-viewer",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Custom Element for Autodesk LMV",
   "license": "BSD 3-Clause",
   "main": "lmv-viewer.html",

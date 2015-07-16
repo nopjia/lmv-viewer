@@ -41,6 +41,7 @@ Attribute | Options  | Description
 Property  | Description
 ---       | ---
 `viewer`  | The Viewer3D instance. Use this to access the LMV [Viewing API](https://s3.amazonaws.com/autodesk.viewingservice.viewers.prod/1.2.13/docs/index.html).
+`doc`     | The loaded document, if exists. See Autodesk.Viewing.Document _(TODO: Link?)_
 
 ## Example
 

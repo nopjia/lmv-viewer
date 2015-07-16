@@ -96,6 +96,8 @@
     this.ready = false;                   // ready to load url
     this.url = this.getAttribute("url");  // url to load
 
+    this.doc = undefined;                 // reference to av.Document, if exists
+
     this.env = this.getAttribute("env");
     if (!this.env && !isUrn(this.url)) {  // detect for Local, otherwise let avp handle
       this.env = "Local";
@@ -126,7 +128,7 @@
   // CHANGED HANDLERS
   //---------------------------------------------------------
 
-  element.urlChanged = function(oldVal, newVal) {
+  element.urlChanged = function() {
     this.loadUrl(this.url);
   };
 
@@ -165,6 +167,8 @@
       console.log("Viewer not ready. URL will load once it is.");
       return;
     }
+
+    this.doc = undefined;
 
     if (endsWith(url, ".svf")) {
       console.log("Load URL: SVF model");
@@ -223,7 +227,7 @@
   };
 
   // Registers custom element
-  document.registerElement('lmv-viewer', {
+  document.registerElement("lmv-viewer", {
     prototype: element
   });
 }());

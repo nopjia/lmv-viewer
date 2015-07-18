@@ -30,11 +30,13 @@ Or load URN with your access token from Autodesk server
 
 ## Attributes
 
-Attribute | Options  | Description
----       | ---      | ---
-`url`     | *string* | URL of document or model to load
-`token`   | *string* | (Optional) Access token required to load URL from Autodesk servers
-`env`     | *string* | (Optional) Server environment, defaults to "AutodeskProduction"
+Attribute   | Options   | Description
+---         | ---       | ---
+`url`       | *string*  | URL of document or model to load
+`token`     | *string*  | (Optional) Access token required to load URL from Autodesk servers
+`env`       | *string*  | (Optional) Server environment, defaults to "AutodeskProduction"
+`endpoint`  | *string*  | (Optional) LMV resource URL, defaults to "autodeskviewer.com/viewers/latest"
+`extensions`| *boolean* | (Optional) Option to load "firefly-extensions.js", defaults to false
 
 ## Properties
 

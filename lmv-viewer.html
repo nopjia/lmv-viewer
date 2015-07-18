@@ -8,20 +8,12 @@
   </style>
 </template>
 
-<script type="text/javascript" src="http://autodeskviewer.com/viewers-staging/latest/firefly.js"></script>
-<script type="text/javascript">
-  // TODO_NOP: hacky hardcode
-  window.LMV_RESOURCE_ROOT = "http://autodeskviewer.com/viewers-staging/latest/";
-</script>
-
 <script>
 (function() {
 
   //---------------------------------------------------------
   // SCOPE VARS
   //---------------------------------------------------------
-
-  var avp = Autodesk.Viewing.Private;
 
   function isUrn(url) {
     return url.indexOf("urn:") === 0;
@@ -91,8 +83,6 @@
   //---------------------------------------------------------
 
   element.init = function() {
-    var self = this;
-
     this.ready = false;                   // ready to load url
     this.url = this.getAttribute("url");  // url to load
 
@@ -104,22 +94,56 @@
       this.setAttribute("env", "Local");  // reflect in attr
     }                                     // TODO_NOP: but results in ugly case in envChanged()
 
-    var token = this.getAttribute("token");
+    var self = this;
+    this.loadScripts(function() {
+      self.viewer = new Autodesk.Viewing.Viewer3D(self.shadowRoot, {});
 
-    this.viewer = new Autodesk.Viewing.Viewer3D(this.shadowRoot, {});
-    Autodesk.Viewing.Initializer({
-        accessToken: token,
-        env: self.env
-      },
-      function() {
-        self.viewer.initialize();
-        self.ready = true;
-        if (self.url)
-          self.loadUrl(self.url);
-        else
-          console.log("No URL given");
+      Autodesk.Viewing.Initializer({
+          accessToken: self.getAttribute("token"),
+          env: self.env
+        },
+        function() {
+          self.viewer.initialize();
+          self.ready = true;
+          if (self.url)
+            self.loadUrl(self.url);
+          else
+            console.log("No URL given");
+        }
+      );
+    });
+  };
+
+  element.loadScripts = function(cb) {
+    // TODO_NOP: switch to prod when it gets firefly.js
+    var resourceUrl = this.getAttribute("endpoint") || "http://autodeskviewer.com/viewers-staging/latest/";
+    var loadExtensions = this.getAttribute("extensions") || false;
+
+    if (resourceUrl.indexOf(resourceUrl.length-1) !== "/")
+      resourceUrl = resourceUrl + "/";
+
+    var fireflyjs = document.createElement("script");
+    fireflyjs.src = resourceUrl + "firefly.js";
+    fireflyjs.onload = function() {
+      console.log("firefly.js loaded");
+      // TODO_NOP: hacky, set after loaded
+      window.LMV_RESOURCE_ROOT = resourceUrl;
+
+      if (!loadExtensions) {
+        cb();
+        return;
       }
-    );
+
+      // load extensions after firefly.js
+      var extensionsjs = document.createElement("script");
+      extensionsjs.src = resourceUrl + "firefly-extensions.js";
+      extensionsjs.onload = function() {
+        console.log("firefly-extensions.js loaded");
+        cb();
+      };
+      thisDoc.body.appendChild(extensionsjs);
+    };
+    thisDoc.body.appendChild(fireflyjs);
   };
 
 
@@ -135,6 +159,7 @@
   element.envChanged = function(oldVal, newVal) {
     if (oldVal===null && newVal==="Local")  // TODO_NOP: ugly hardcode case only for initialization
       return;
+    var avp = Autodesk.Viewing.Private;
     avp.initializeEnvironmentVariable({env: newVal});
     avp.initializeServiceEndPoints({env: newVal});
     avp.initializeLogger();
@@ -143,7 +168,7 @@
   element.tokenChanged = function(oldVal, newVal) {
     this.ready = false;
     var self = this;
-    avp.initializeAuth(function() {
+    Autodesk.Viewing.Private.initializeAuth(function() {
       self.ready = true;
       if (self.url) // automatically load url once token set
           self.loadUrl(self.url);

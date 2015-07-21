@@ -2,6 +2,10 @@
 
 A Custom Element for Autodesk's LMV, also officially known as [the View and Data API](http://developer-autodesk.github.io/)
 
+```html
+<lmv-viewer url="https://lmv.rocks/data/engineraw/0.svf"></lmv-viewer>
+```
+
 See demo at http://nopjia.github.io/lmv-viewer/
 
 See more samples and information for LMV at http://lmv.rocks/
@@ -18,15 +22,33 @@ Or [download as ZIP](https://github.com/nopjia/lmv-viewer/archive/master.zip).
 
 ## Usage
 
-Simply load a file
-```html
-<lmv-viewer url="https://lmv.rocks/data/engineraw/0.svf"></lmv-viewer>
-```
+1. Import polyfill:
+    ```html
+    <script src="bower_components/webcomponentsjs/webcomponents.min.js"></script>
+    ```
 
-Or load URN with your access token from Autodesk server
-```html
-<lmv-viewer url="urn:dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6bm9wL0FyYm9yUHJlc3MuZHdm" token="7twj3okWPRkbBMtpfUSN5hZkcAkv"></lmv-viewer>
-```
+1. Import firefly.js
+    ```html
+    <script src="http://autodeskviewer.com/viewers-dev/latest/firefly.js"></script>
+  ```
+    And optionally import extensions
+    ```html
+    <script src="http://autodeskviewer.com/viewers-dev/latest/firefly-extensions.js"></script>
+  ```
+
+1. Import &lt;lmv-viewer&gt; element:
+    ```html
+    <link rel="import" href="bower_components/lmv-viewer/lmv-viewer.html">
+    ```
+
+1. Load a file
+    ```html
+    <lmv-viewer url="https://lmv.rocks/data/engineraw/0.svf"></lmv-viewer>
+    ```
+    Or load URN with your access token from Autodesk server
+    ```html
+    <lmv-viewer url="urn:dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6bm9wL0FyYm9yUHJlc3MuZHdm" token="7twj3okWPRkbBMtpfUSN5hZkcAkv"></lmv-viewer>
+    ```
 
 ## Attributes
 
@@ -52,11 +74,14 @@ Try it yourself by pasting this into a blank HTML file
 <head>
   <title>LMV Test</title>
 
-  <!-- include polyfill, eventually this will go away! -->
+  <!-- Import polyfill -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/webcomponentsjs/0.7.3/webcomponents.min.js"></script>
 
-  <!-- include the lmv-viewer element -->
-  <link rel="import" href="https://rawgit.com/nopjia/lmv-viewer/master/lmv-viewer.html">
+  <!-- Import firefly.js -->
+  <script src="http://autodeskviewer.com/viewers-dev/latest/firefly.js"></script>
+
+  <!-- Import lmv-viewer element -->
+  <link rel="import" href="https://rawgit.com/nopjia/lmv-viewer/develop/lmv-viewer.html">
 </head>
 <body>
 

@@ -93,7 +93,7 @@
     this.doc = undefined;                 // reference to av.Document, if exists
 
     this.env = this.getAttribute("env");
-    if (!this.env && !isUrn(this.url)) {  // detect for Local, otherwise let avp handle
+    if (!this.env && this.url && !isUrn(this.url)) {  // detect for Local, otherwise let avp handle
       this.env = "Local";
       this.setAttribute("env", "Local");  // reflect in attr
     }                                     // TODO_NOP: but results in ugly case in envChanged()

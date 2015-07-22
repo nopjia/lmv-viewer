@@ -70,7 +70,7 @@
     console.log("lmv-viewer '" + attr + "' changed from '" + oldVal + "' to '" + newVal + "'");
 
     // sync instance vars
-    if (this[attr])
+    if (this.hasOwnProperty(attr))
       this[attr] = newVal;
 
     // call changed handlers

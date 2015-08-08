@@ -89,6 +89,7 @@
 
     this.ready = false;                   // ready to load url
     this.url = this.getAttribute("url");  // url to load
+    var sizePx = this.getAttribute("size"); // Format: <width>x<height>. Example: "600x400"
 
     this.doc = undefined;                 // reference to av.Document, if exists
 
@@ -97,6 +98,8 @@
       this.env = "Local";
       this.setAttribute("env", "Local");  // reflect in attr
     }                                     // TODO_NOP: but results in ugly case in envChanged()
+
+    this.sizeChanged(null, sizePx);
 
     var token = this.getAttribute("token");
 
@@ -144,6 +147,20 @@
     }, {accessToken: newVal});
   };
 
+  element.sizeChanged = function(oldVal, newVal) {
+      if (!newVal) return;
+      var parts = newVal.split('x');
+      if (parts.length !== 2) return;
+      var pxWidth = Number(parts[0]);
+      var pxHeight = Number(parts[1]);
+      if (pxWidth)
+        this.style.width = pxWidth + 'px';
+      if (pxHeight)
+        this.style.height = pxHeight + 'px';
+      if (pxWidth || pxHeight) {
+        this.viewer && this.viewer.resize();
+      }
+  };
 
 
   //---------------------------------------------------------

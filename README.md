@@ -30,11 +30,11 @@ Or [download as ZIP](https://github.com/nopjia/lmv-viewer/archive/master.zip).
 1. Import firefly.js
     ```html
     <script src="http://autodeskviewer.com/viewers-dev/latest/firefly.js"></script>
-  ```
+    ```
     And optionally import extensions
     ```html
     <script src="http://autodeskviewer.com/viewers-dev/latest/firefly-extensions.js"></script>
-  ```
+    ```
 
 1. Import &lt;lmv-viewer&gt; element:
     ```html

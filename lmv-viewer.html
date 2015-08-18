@@ -168,6 +168,10 @@
       console.log("Load URL: SVF model");
       this.loadModel(url);
     }
+    else if (endsWith(url, ".f2d")) {
+      console.log("Load URL: F2D file");
+      this.loadModel(url);
+    }
     else if (isUrn(url)) {
       console.log("Load URL: JSON document");
       this.loadDocument(url);

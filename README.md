@@ -91,8 +91,3 @@ Try it yourself by pasting this into a blank HTML file
 </body>
 </html>
 ```
-
-
-## License
-
-[BSD 3-Clause License](http://opensource.org/licenses/BSD-3-Clause)
